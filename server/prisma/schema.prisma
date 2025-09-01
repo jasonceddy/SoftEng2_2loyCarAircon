@@ -1,0 +1,178 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              Int       @id @default(autoincrement())
+  name            String
+  email           String    @unique
+  phone           String    @unique
+  password        String
+  role            Role      @default(CUSTOMER)
+  cars            Car[]
+  bookings        Booking[]
+  notes           JobNote[]
+  quotes          Quote[]
+  techAssignments Booking[] @relation("TechAssignments")
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+  TECHNICIAN
+}
+
+model Car {
+  id       Int       @id @default(autoincrement())
+  plateNo  String    @unique
+  brand    String
+  model    String
+  year     String
+  notes    String
+  owner    User      @relation(fields: [ownerId], references: [id])
+  ownerId  Int
+  bookings Booking[]
+}
+
+model Service {
+  id                      Int       @id @default(autoincrement())
+  name                    String
+  cost                    Float
+  description             String
+  allowCustomerTechChoice Boolean   @default(true)
+  bookings                Booking[]
+}
+
+model Booking {
+  id           Int           @id @default(autoincrement())
+  customer     User          @relation(fields: [customerId], references: [id])
+  customerId   Int
+  car          Car           @relation(fields: [carId], references: [id])
+  carId        Int
+  service      Service       @relation(fields: [serviceId], references: [id])
+  serviceId    Int
+  technician   User?         @relation("TechAssignments", fields: [technicianId], references: [id])
+  technicianId Int?
+  status       BookingStatus @default(PENDING)
+  scheduledAt  DateTime
+  jobs         Job[]
+  createdAt    DateTime      @default(now())
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  REJECTED
+}
+
+model Job {
+  id        Int         @id @default(autoincrement())
+  booking   Booking     @relation(fields: [bookingId], references: [id])
+  bookingId Int
+  stage     JobStage    @default(DIAGNOSTIC)
+  notes     JobNote[]
+  partsUsed PartsUsed[]
+  updatedAt DateTime    @updatedAt
+}
+
+enum JobStage {
+  DIAGNOSTIC
+  REPAIR
+  TESTING
+  COMPLETION
+}
+
+model JobNote {
+  id        Int      @id @default(autoincrement())
+  job       Job      @relation(fields: [jobId], references: [id])
+  jobId     Int
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  Int
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model Part {
+  id        Int            @id @default(autoincrement())
+  name      String
+  stock     Int            @default(0)
+  threshold Int            @default(5) // low stock warning
+  logs      InventoryLog[]
+  partsUsed PartsUsed[]
+}
+
+model InventoryLog {
+  id        Int       @id @default(autoincrement())
+  part      Part      @relation(fields: [partId], references: [id])
+  partId    Int
+  type      StockType
+  quantity  Int
+  createdAt DateTime  @default(now())
+}
+
+enum StockType {
+  IN
+  OUT
+}
+
+model PartsUsed {
+  id       Int  @id @default(autoincrement())
+  job      Job  @relation(fields: [jobId], references: [id])
+  jobId    Int
+  part     Part @relation(fields: [partId], references: [id])
+  partId   Int
+  quantity Int
+}
+
+model Quote {
+  id         Int         @id @default(autoincrement())
+  customer   User        @relation(fields: [customerId], references: [id])
+  customerId Int
+  details    String
+  total      Float
+  status     QuoteStatus @default(PENDING)
+  billing    Billing?
+  createdAt  DateTime    @default(now())
+}
+
+enum QuoteStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Billing {
+  id        Int           @id @default(autoincrement())
+  quote     Quote         @relation(fields: [quoteId], references: [id])
+  quoteId   Int           @unique
+  total     Float
+  status    BillingStatus @default(UNPAID)
+  payments  Payment[]
+  createdAt DateTime      @default(now())
+}
+
+enum BillingStatus {
+  UNPAID
+  PAID
+}
+
+model Payment {
+  id        Int      @id @default(autoincrement())
+  billing   Billing  @relation(fields: [billingId], references: [id])
+  billingId Int
+  amount    Float
+  method    String
+  paidAt    DateTime @default(now())
+}
