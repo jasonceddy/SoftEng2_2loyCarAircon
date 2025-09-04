@@ -126,7 +126,7 @@ export default function BookingForm({ setBookModal, bookModal }) {
           <SelectTrigger className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600  w-full">
             <SelectValue placeholder="Select Service..." />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="max-h-100">
             {services.map((service) => (
               <SelectItem key={service.id} value={service.id.toString()}>
                 {service.name}

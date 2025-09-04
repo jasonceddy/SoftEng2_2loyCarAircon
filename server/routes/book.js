@@ -1,11 +1,17 @@
 import { Router } from "express"
-import { createBook } from "../controllers/BookController.js"
+import {
+  assignTechnician,
+  confirmBooking,
+  createBook,
+  getBookings,
+  rejectBooking,
+} from "../controllers/BookController.js"
 import {
   authenticateUser,
   authorizePermissions,
 } from "../middlewares/AuthMiddleware.js"
 import { validate } from "../middlewares/ValidationMiddleware.js"
-import { createBookSchema } from "../schemas/bookSchema.js"
+import { createBookSchema, rejectSchema } from "../schemas/bookSchema.js"
 
 const router = Router()
 
@@ -17,5 +23,15 @@ router.post(
   validate(createBookSchema),
   createBook
 )
+
+router.get("/", getBookings)
+router.patch("/:id/assign", authorizePermissions("ADMIN"), assignTechnician)
+router.patch(
+  "/:id/reject",
+  authorizePermissions("ADMIN"),
+  validate(rejectSchema),
+  rejectBooking
+)
+router.patch("/:id/confirm", authorizePermissions("ADMIN"), confirmBooking)
 
 export default router

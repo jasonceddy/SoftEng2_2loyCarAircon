@@ -5,9 +5,10 @@ export async function getAllServices(req, res) {
   try {
     const { search = "", page = 1, limit = 10, sort = "id_desc" } = req.query
 
+    const isCustomer = req.user.role === "CUSTOMER"
     const pageNumber = parseInt(page) //if no page is provided, default to 1
-    const pageSize = parseInt(limit) //limit will always be 25
-    const skip = (pageNumber - 1) * pageSize //how much data would we skip per page
+    const pageSize = isCustomer ? undefined : parseInt(limit) //limit will always be 25
+    const skip = isCustomer ? 0 : (pageNumber - 1) * parseInt(limit) //how much data would we skip per page
 
     //search filters
     let where = search
@@ -18,6 +19,14 @@ export async function getAllServices(req, res) {
           ],
         }
       : {}
+
+    // 🚨 hide hidden services from customers
+    if (isCustomer) {
+      where = {
+        ...where,
+        hidden: false,
+      }
+    }
 
     //filters
     let orderBy
@@ -69,9 +78,9 @@ export async function getAllServices(req, res) {
     res.status(200).json({
       data: services,
       count,
-      page: pageNumber,
-      pageSize,
-      totalPages: Math.ceil(count / pageSize),
+      page: isCustomer ? 1 : pageNumber,
+      pageSize: isCustomer ? count : parseInt(limit),
+      totalPages: isCustomer ? 1 : Math.ceil(count / parseInt(limit)),
     })
   } catch (error) {
     console.log(error)
@@ -110,4 +119,64 @@ export async function deleteService(req, res) {
   if (!service) return res.status(404).json({ message: "Service not found" })
 
   res.status(200).json({ message: "Service deleted successfully" })
+}
+
+export async function unHideService(req, res) {
+  try {
+    const { id } = req.params
+
+    const service = await prisma.service.findUnique({
+      where: { id: parseInt(id) },
+    })
+
+    if (!service) {
+      return res.status(404).json({ message: "Service not found" })
+    }
+
+    if (!service.hidden) {
+      return res.status(400).json({ message: "Service is not hidden" })
+    }
+
+    const updatedService = await prisma.service.update({
+      where: { id: parseInt(id) },
+      data: { hidden: false },
+    })
+
+    res.status(200).json({
+      message: "Service is now made available for customers",
+    })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: "Something went wrong" })
+  }
+}
+
+export async function hideService(req, res) {
+  try {
+    const { id } = req.params
+
+    const service = await prisma.service.findUnique({
+      where: { id: parseInt(id) },
+    })
+
+    if (!service) {
+      return res.status(404).json({ message: "Service not found" })
+    }
+
+    if (service.hidden) {
+      return res.status(400).json({ message: "Service is already hidden" })
+    }
+
+    const updatedService = await prisma.service.update({
+      where: { id: parseInt(id) },
+      data: { hidden: true },
+    })
+
+    res.status(200).json({
+      message: "Service is now hidden from customers",
+    })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: "Something went wrong" })
+  }
 }

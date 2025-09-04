@@ -1,4 +1,7 @@
+import bcrypt from "bcryptjs"
+import { prisma } from "../server.js"
 import jwt from "jsonwebtoken"
+
 
 //check if user is authenticated
 export const authenticateUser = (req, res, next) => {

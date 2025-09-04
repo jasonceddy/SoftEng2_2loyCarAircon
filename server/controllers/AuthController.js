@@ -74,6 +74,14 @@ export async function signIn(req, res) {
 
     if (!user) return res.status(400).json({ message: "Invalid Credentials" })
 
+    if (user.blocked)
+      return res
+        .status(400)
+        .json({
+          message:
+            "You can no longer access your account please contact the us for more information",
+        })
+
     const doesPasswordMatch = await comparePassword(
       data.password,
       user.password

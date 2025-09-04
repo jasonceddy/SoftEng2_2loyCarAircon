@@ -8,3 +8,5 @@ export const createBookSchema = z.object({
   }),
   technicianId: z.number().int().positive().optional(),
 })
+
+export const rejectSchema = z.object({ reason: z.string().min(1, "Required") })

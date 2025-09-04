@@ -9,6 +9,9 @@ import ServiceRouter from "./routes/service.js"
 import CarRouter from "./routes/car.js"
 import BookRouter from "./routes/book.js"
 import UserRouter from "./routes/user.js"
+import PartRouter from "./routes/part.js"
+import LogsRouter from "./routes/logs.js"
+import JobRouter from "./routes/jobs.js"
 
 dotenv.config()
 
@@ -30,6 +33,9 @@ app.use("/api/services", ServiceRouter)
 app.use("/api/cars", CarRouter)
 app.use("/api/bookings", BookRouter)
 app.use("/api/users", UserRouter)
+app.use("/api/parts", PartRouter)
+app.use("/api/jobs", JobRouter)
+app.use("/api/inventory/logs", LogsRouter)
 
 app.use((req, res) => {
   res.status(404).json({ message: "Not Found" })

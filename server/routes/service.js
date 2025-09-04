@@ -7,6 +7,8 @@ import {
   createService,
   deleteService,
   getAllServices,
+  hideService,
+  unHideService,
   updateService,
 } from "../controllers/ServiceController.js"
 import { validate } from "../middlewares/ValidationMiddleware.js"
@@ -33,5 +35,8 @@ router.patch(
   updateService
 )
 router.delete("/:id", authorizePermissions("ADMIN"), deleteService)
+
+router.patch("/:id/hide", authorizePermissions("ADMIN"), hideService)
+router.patch("/:id/unhide", authorizePermissions("ADMIN"), unHideService)
 
 export default router

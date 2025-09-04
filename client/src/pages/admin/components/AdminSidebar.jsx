@@ -1,4 +1,13 @@
-import { Calendar, Home, Inbox, Search, Settings, Pickaxe } from "lucide-react"
+import {
+  Calendar,
+  Home,
+  Pickaxe,
+  Book,
+  Wrench,
+  UserCheck,
+  ToolCase,
+  User,
+} from "lucide-react"
 
 import {
   Sidebar,
@@ -16,7 +25,7 @@ export function AdminSidebar() {
   const location = useLocation()
   return (
     <Sidebar className="static h-full border-none">
-      <SidebarContent className=" bg-white h-full">
+      <SidebarContent className=" bg-white h-full border-none">
         <SidebarGroup>
           <SidebarGroupLabel>Home</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -38,7 +47,59 @@ export function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>Manage</SidebarGroupLabel>
+          <SidebarGroupLabel>Manage Users</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link
+                    to="/admin/users"
+                    className={
+                      location.pathname === "/admin/users"
+                        ? "bg-sidebar-accent"
+                        : ""
+                    }
+                  >
+                    <User />
+                    <span>Users</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link
+                    to="/admin/customers"
+                    className={
+                      location.pathname === "/admin/customers"
+                        ? "bg-sidebar-accent"
+                        : ""
+                    }
+                  >
+                    <UserCheck />
+                    <span>Customers</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link
+                    to="/admin/technicians"
+                    className={
+                      location.pathname === "/admin/technicians"
+                        ? "bg-sidebar-accent"
+                        : ""
+                    }
+                  >
+                    <ToolCase />
+                    <span>Technicians</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Manage Activities</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
@@ -53,6 +114,58 @@ export function AdminSidebar() {
                   >
                     <Pickaxe />
                     <span>Services</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link
+                    to="/admin/bookings"
+                    className={
+                      location.pathname === "/admin/bookings"
+                        ? "bg-sidebar-accent"
+                        : ""
+                    }
+                  >
+                    <Book />
+                    <span>Bookings</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link
+                    to="/admin/parts"
+                    className={
+                      location.pathname === "/admin/parts"
+                        ? "bg-sidebar-accent"
+                        : ""
+                    }
+                  >
+                    <Wrench />
+                    <span>Parts</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Logs</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link
+                    to="/admin/logs"
+                    className={
+                      location.pathname === "/admin/logs"
+                        ? "bg-sidebar-accent"
+                        : ""
+                    }
+                  >
+                    <Calendar />
+                    <span>Logs</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

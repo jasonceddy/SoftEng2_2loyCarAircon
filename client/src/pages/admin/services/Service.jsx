@@ -3,6 +3,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
@@ -100,6 +101,26 @@ export default function Service() {
     { value: "not_allowed", label: "Not allowed to assign Technicians" },
   ]
 
+  const unavailableService = async (id) => {
+    try {
+      await axiosClient.patch(`/services/${id}/hide`)
+      toast.success("Service is now unavailable for customers!")
+      fetchServices()
+    } catch (error) {
+      toast.error("Something went wrong!")
+    }
+  }
+
+  const availableService = async (id) => {
+    try {
+      await axiosClient.patch(`/services/${id}/unhide`)
+      toast.success("Service is now available for customers!")
+      fetchServices()
+    } catch (error) {
+      toast.error("Something went wrong!")
+    }
+  }
+
   return (
     <>
       <main className="flex-1 p-10 border-t bg-gray-100/50 flex flex-col gap-10">
@@ -117,7 +138,7 @@ export default function Service() {
           </button>
         </section>
         <section className="flex-1 flex flex-col">
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-5 max-[400px]:flex-col max-[400px]:items-start">
             <div className="flex flex-col">
               <label htmlFor="search">Search:</label>
               <input
@@ -152,11 +173,16 @@ export default function Service() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
-                  <TableHead>Cost</TableHead>
-                  <TableHead className="max-[1180px]:hidden">
+                  <TableHead className="max-[470px]:hidden">Cost</TableHead>
+                  <TableHead className="max-[1360px]:hidden">
                     Description
                   </TableHead>
-                  <TableHead>Allow Technician</TableHead>
+                  <TableHead className="max-[700px]:hidden">
+                    Allow Technician
+                  </TableHead>
+                  <TableHead className="max-[400px]:hidden">
+                    Available
+                  </TableHead>
                   <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
@@ -173,12 +199,21 @@ export default function Service() {
                       <TableCell className="font-medium max-w-sm truncate">
                         {d.name}
                       </TableCell>
-                      <TableCell>{formatCurrency(d.cost)}</TableCell>
-                      <TableCell className="max-[1180px]:hidden">
+                      <TableCell className="max-[470px]:hidden">
+                        {formatCurrency(d.cost)}
+                      </TableCell>
+                      <TableCell className="max-[1360px]:hidden">
                         {d.description}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="max-[700px]:hidden">
                         {d.allowCustomerTechChoice ? (
+                          <Check className="text-green-500" />
+                        ) : (
+                          <X className="text-red-500" />
+                        )}
+                      </TableCell>
+                      <TableCell className="max-[400px]:hidden">
+                        {!d.hidden ? (
                           <Check className="text-green-500" />
                         ) : (
                           <X className="text-red-500" />
@@ -190,6 +225,26 @@ export default function Service() {
                             <MoreVertical className="cursor-pointer" />
                           </DropdownMenuTrigger>
                           <DropdownMenuContent>
+                            {!d.hidden ? (
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  unavailableService(d.id)
+                                }}
+                                className="cursor-pointer"
+                              >
+                                Unavailable
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  availableService(d.id)
+                                }}
+                                className="cursor-pointer"
+                              >
+                                Available
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuSeparator />
                             <DropdownMenuItem
                               onClick={() => {
                                 setModal((prev) => ({

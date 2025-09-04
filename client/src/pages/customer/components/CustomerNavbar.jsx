@@ -27,18 +27,18 @@ export default function CustomerNavbar() {
   const { name } = useCustomer()
   return (
     <header>
-      <nav className="py-4 px-5 flex items-center justify-between">
+      <nav className="py-4 px-5 flex items-center justify-between bg-blue-400 text-white">
         <div className="flex items-center">
           <SidebarTrigger className={"hidden max-[768px]:block"} />
           <Link to={"/customer"} className="text-xl font-bold">
-            Car Rental Service
+            Car Aircon Service
           </Link>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <div className="flex items-center gap-2 px-2 py-1 hover:bg-sidebar-accent cursor-pointer rounded-md">
+            <div className="flex items-center gap-2 px-2 py-1 hover:bg-blue-500  cursor-pointer rounded-md">
               <Avatar>
-                <AvatarFallback className="bg-gray-200 flex items-center justify-center">
+                <AvatarFallback className="bg-blue-700 flex items-center justify-center">
                   {name.slice(0, 1)}
                 </AvatarFallback>
               </Avatar>
