@@ -20,7 +20,7 @@ export default function RegisterForm() {
     try {
       await axiosClient.post("/auth/register", data)
       toast.success("Registration Successful! You can now login.")
-      navigate("/")
+      navigate("/login")
       reset()
     } catch (error) {
       if (error.response?.status === 400) {

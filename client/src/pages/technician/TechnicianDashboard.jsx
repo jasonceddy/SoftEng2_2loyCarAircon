@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import TechnicianPagination from "./components/TechnicianPagination"
 
 export async function loader() {
   const res = await axiosClient.get("/jobs")
@@ -85,7 +86,7 @@ export default function TechnicianDashboard() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">My Assigned Jobs</h1>
       </div>
-
+      {!data && <h1 className="text-2xl font-bold">No jobs found</h1>}
       <div className="flex items-center gap-5 mb-6">
         <div className="flex flex-col">
           <label htmlFor="search">Search:</label>
@@ -142,6 +143,21 @@ export default function TechnicianDashboard() {
               <TechnicianJobCard key={d.id} job={d} fetchJobs={refreshJobs} />
             ))
           : "No jobs found"}
+      </div>
+      <div className="flex items-center justify-between mt-5 w-full">
+        <p className="italic">
+          Showing {data?.data?.length || 0} of {data?.count || 0} results
+        </p>
+
+        {data?.totalPages > 1 && (
+          <div>
+            <TechnicianPagination
+              data={data}
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+            />
+          </div>
+        )}
       </div>
     </main>
   )

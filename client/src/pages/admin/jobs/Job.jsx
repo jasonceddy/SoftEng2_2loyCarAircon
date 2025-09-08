@@ -1,5 +1,4 @@
 import axiosClient from "@/axiosClient"
-import Stepper from "@/components/Stepper"
 import {
   Select,
   SelectContent,
@@ -11,15 +10,16 @@ import {
 } from "@/components/ui/select"
 import { useLoaderData } from "react-router-dom"
 import { toast } from "react-toastify"
-import CustomerPagination from "./components/CustomerPagination"
 import { useEffect, useState } from "react"
+import JobPagination from "./components/JobPagination"
+import Stepper from "./components/Stepper"
 
 export async function loader() {
   const res = await axiosClient.get("/bookings")
   return res.data
 }
 
-export default function CustomerDashboard() {
+export default function Job() {
   const initialData = useLoaderData()
   const [data, setData] = useState(initialData) //mapping the data
   const [search, setSearch] = useState("") //search filter
@@ -42,6 +42,8 @@ export default function CustomerDashboard() {
       setLoading(false)
     }
   }
+
+  console.log(data.data)
 
   const refreshJobs = () => {
     fetchBookings(search, filter, currentPage)
@@ -111,7 +113,7 @@ export default function CustomerDashboard() {
 
           {data.totalPages > 1 && (
             <div>
-              <CustomerPagination
+              <JobPagination
                 data={data}
                 currentPage={currentPage}
                 setCurrentPage={setCurrentPage}

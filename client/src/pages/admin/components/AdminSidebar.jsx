@@ -7,6 +7,7 @@ import {
   UserCheck,
   ToolCase,
   User,
+  Briefcase,
 } from "lucide-react"
 
 import {
@@ -129,6 +130,21 @@ export function AdminSidebar() {
                   >
                     <Book />
                     <span>Bookings</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link
+                    to="/admin/jobs"
+                    className={
+                      location.pathname === "/admin/jobs"
+                        ? "bg-sidebar-accent"
+                        : ""
+                    }
+                  >
+                    <Briefcase />
+                    <span>Jobs</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

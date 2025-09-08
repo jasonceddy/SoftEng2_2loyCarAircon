@@ -8,6 +8,7 @@ import {
 } from "../schemas/authSchema.js"
 import {
   forgotPassword,
+  getToken,
   getUser,
   resetPassword,
   signIn,
@@ -24,5 +25,6 @@ router.get("/logout", signOut)
 router.post("/forgot-password", validate(forgotPasswordSchema), forgotPassword)
 router.post("/reset-password", validate(resetPasswordSchema), resetPassword)
 router.get("/current-user", authenticateUser, getUser)
+router.get("/get-token", getToken)
 
 export default router

@@ -361,7 +361,8 @@ export default function Booking() {
                               </DropdownMenuItem>
                             )}
                             {booking.jobs.length > 0 &&
-                              booking.jobs[0].stage === "COMPLETION" && (
+                              booking.jobs[0].stage === "COMPLETION" &&
+                              !booking.quote?.status > 0 && (
                                 <DropdownMenuItem
                                   className="cursor-pointer flex items-center justify-center"
                                   onClick={() =>
@@ -371,9 +372,7 @@ export default function Booking() {
                                   Generate Quote
                                 </DropdownMenuItem>
                               )}
-                            {booking.status !== "REJECTED" && (
-                              <DropdownMenuSeparator />
-                            )}
+
                             <DropdownMenuItem
                               className="cursor-pointer flex items-center justify-center"
                               onClick={() =>

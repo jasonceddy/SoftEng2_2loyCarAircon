@@ -161,13 +161,40 @@ export async function updateCar(req, res) {
 }
 
 //delete car
+// delete car
 export async function deleteCar(req, res) {
   const { id } = req.params
+  const carId = parseInt(id)
 
-  const car = await prisma.car.delete({
-    where: { id: parseInt(id), ownerId: req.user.userId },
+  // 1. Check if car exists and belongs to the user
+  const car = await prisma.car.findFirst({
+    where: { id: carId, ownerId: req.user.userId },
   })
-  if (!car) return res.status(404).json({ message: "Car not found" })
+
+  if (!car) {
+    return res.status(404).json({ message: "Car not found" })
+  }
+
+  // 2. Check if car has upcoming bookings
+  const now = new Date()
+  const hasUpcomingBooking = await prisma.booking.findFirst({
+    where: {
+      carId,
+      scheduledAt: { gte: new Date() }, // booking starts in the future
+      status: { in: ["PENDING", "CONFIRMED"] }, // only count active bookings
+    },
+  })
+
+  if (hasUpcomingBooking) {
+    return res.status(400).json({
+      message: "Car cannot be deleted because it has upcoming bookings",
+    })
+  }
+
+  // 3. Safe to delete
+  await prisma.car.delete({
+    where: { id: carId },
+  })
 
   res.status(200).json({ message: "Car deleted successfully" })
 }

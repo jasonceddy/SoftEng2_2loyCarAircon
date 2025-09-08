@@ -1,3 +1,4 @@
+import { comparePassword, hashingPassword } from "./AuthController.js"
 import { prisma } from "../server.js"
 import bcrypt from "bcryptjs"
 export async function getTechnicians(req, res) {
@@ -394,6 +395,78 @@ export async function editUser(req, res) {
     console.error(err)
     res.status(500).json({ error: "Something went wrong" })
   }
+}
+
+export async function editOwnDetails(req, res) {
+  const id = req.user.userId
+  if (!id) {
+    return res.status(401).json({ message: "User not authenticated" })
+  }
+
+  const { name, email, phone } = req.body
+
+  const user = await prisma.user.findUnique({
+    where: { id: parseInt(id) },
+  })
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" })
+  }
+
+  const updatedUser = await prisma.user.update({
+    where: { id: parseInt(id) },
+    data: {
+      ...(name && { name }),
+      ...(email && { email }),
+      ...(phone && { phone }),
+    },
+  })
+
+  res.status(200).json({
+    message: "User updated successfully",
+  })
+}
+
+export async function verifyPassword(req, res) {
+  const id = req.user.userId
+
+  const { current_password } = req.body
+
+  const user = await prisma.user.findUnique({
+    where: { id: parseInt(id) },
+  })
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" })
+  }
+
+  const isPasswordValid = await comparePassword(current_password, user.password)
+
+  res.status(200).json({ isPasswordValid })
+}
+
+export async function changePassword(req, res) {
+  const id = req.user.userId
+  const { new_password } = req.body
+
+  const user = await prisma.user.findUnique({
+    where: { id: parseInt(id) },
+  })
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" })
+  }
+
+  const hashedPassword = await hashingPassword(new_password)
+
+  await prisma.user.update({
+    where: { id: parseInt(id) },
+    data: {
+      password: hashedPassword,
+    },
+  })
+
+  res.status(200).json({ message: "Password changed successfully" })
 }
 
 // Block User

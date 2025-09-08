@@ -208,6 +208,20 @@ export async function getBookings(req, res) {
                   },
                 },
               },
+              partsUsed: {
+                include: {
+                  part: true,
+                },
+              },
+            },
+          },
+          quote: {
+            include: {
+              billing: {
+                include: {
+                  payments: true,
+                },
+              },
             },
           },
         },
@@ -215,19 +229,65 @@ export async function getBookings(req, res) {
       prisma.booking.count({ where }),
     ])
 
-    // 🔥 Custom priority sorting in JS
+    // 🔥 Priority-based sorting with user's sort preference as fallback
     const sorted = bookings.sort((a, b) => {
-      const aHasCompletion = a.jobs.some((j) => j.stage === "COMPLETION")
-      const bHasCompletion = b.jobs.some((j) => j.stage === "COMPLETION")
+      // Helper function to determine booking priority
+      const getPriority = (booking) => {
+        const hasCompletionStage = booking.jobs.some(
+          (j) => j.stage === "COMPLETION"
+        )
+        const hasQuote = !!booking.quote
+        const hasBilling = !!booking.quote?.billing
+        const isPaid = booking.quote?.billing?.status === "PAID"
 
-      if (aHasCompletion && !bHasCompletion) return -1
-      if (!aHasCompletion && bHasCompletion) return 1
+        // Priority 1 (Highest): Completed but no quote
+        if (hasCompletionStage && !hasQuote) {
+          return 1
+        }
 
-      if (a.status === "PENDING" && b.status !== "PENDING") return -1
-      if (b.status === "PENDING" && a.status !== "PENDING") return 1
+        // Priority 2: Completed with quote but billing not paid
+        if (hasCompletionStage && hasQuote && hasBilling && !isPaid) {
+          return 2
+        }
 
-      // fallback to your chosen sort (id_desc here)
-      return b.id - a.id
+        // Priority 3: Pending booking status
+        if (booking.status === "PENDING") {
+          return 3
+        }
+
+        // Priority 4 (Lowest): Everything else (completed & paid, cancelled, rejected, etc.)
+        return 4
+      }
+
+      const aPriority = getPriority(a)
+      const bPriority = getPriority(b)
+
+      // Sort by priority first
+      if (aPriority !== bPriority) {
+        return aPriority - bPriority
+      }
+
+      // If same priority, apply user's chosen sort
+      switch (sort) {
+        case "latest":
+          return new Date(b.createdAt) - new Date(a.createdAt)
+        case "oldest":
+          return new Date(a.createdAt) - new Date(b.createdAt)
+        case "scheduled_latest":
+          return new Date(b.scheduledAt) - new Date(a.scheduledAt)
+        case "scheduled_oldest":
+          return new Date(a.scheduledAt) - new Date(b.scheduledAt)
+        case "id_asc":
+          return a.id - b.id
+        case "id_desc":
+          return b.id - a.id
+        case "customer_name":
+          return a.customer.name.localeCompare(b.customer.name)
+        case "service_name":
+          return a.service.name.localeCompare(b.service.name)
+        default:
+          return new Date(b.createdAt) - new Date(a.createdAt)
+      }
     })
 
     res.status(200).json({

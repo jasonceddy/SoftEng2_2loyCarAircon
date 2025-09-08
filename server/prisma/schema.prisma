@@ -71,6 +71,7 @@ model Booking {
   rejectReason String?
   scheduledAt  DateTime
   jobs         Job[]
+  quote        Quote?          // NEW: one-to-one link to Quote
   createdAt    DateTime  @default(now())
 }
 
@@ -144,6 +145,8 @@ model Quote {
   id        Int      @id @default(autoincrement())
   customer  User     @relation(fields: [customerId], references: [id])
   customerId Int
+  booking    Booking  @relation(fields: [bookingId], references: [id]) // NEW: relation to Booking
+  bookingId  Int      @unique                                          // NEW: one-to-one constraint
   details   String
   total     Float
   status    QuoteStatus @default(PENDING)
