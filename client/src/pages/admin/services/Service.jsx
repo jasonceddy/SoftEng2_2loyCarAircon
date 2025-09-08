@@ -232,7 +232,7 @@ export default function Service() {
                                 }}
                                 className="cursor-pointer"
                               >
-                                Unavailable
+                                Hide
                               </DropdownMenuItem>
                             ) : (
                               <DropdownMenuItem
@@ -241,7 +241,7 @@ export default function Service() {
                                 }}
                                 className="cursor-pointer"
                               >
-                                Available
+                                Unhide
                               </DropdownMenuItem>
                             )}
                             <DropdownMenuSeparator />
